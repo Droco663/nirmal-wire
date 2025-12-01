@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supplier Management & Negotiation</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FontAwesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Google Fonts: Poppins -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .nav-item.active {
+        background-color: #3b82f6;
+        color: white;
+      }
+      .nav-item:hover:not(.active) {
+        background-color: #e5e7eb;
+        color: #1f2937;
+      }
+      .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Chat Bubble Styles */
+      .msg-bubble {
+        max-width: 75%;
+        padding: 10px 15px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        position: relative;
+        font-size: 0.95rem;
+      }
+      .msg-admin {
+        background-color: #3b82f6;
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+      }
+      .msg-supplier {
+        background-color: #e5e7eb;
+        color: #1f2937;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+      }
+      .msg-meta {
+        font-size: 0.7rem;
+        margin-top: 4px;
+        opacity: 0.8;
+        text-align: right;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+    </style>
+  </head>
+
+  <body class="h-screen flex overflow-hidden">
+    <!-- SIDEBAR -->
+    <aside
+      class="w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm z-10 hidden md:flex"
+    >
+      <div class="p-6 flex items-center gap-3 border-b border-gray-100">
+        <!-- Intentionally blank header (no logo/name) -->
+      </div>
+
+      <nav class="flex-1 p-4 space-y-2">
+        <button
+          onclick="navigate('dashboard')"
+          id="nav-dashboard"
+          class="nav-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors"
+        >
+          <i class="fas fa-chart-pie w-5"></i> Dashboard
+        </button>
+        <button
+          onclick="navigate('supplier')"
+          id="nav-supplier"
+          class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 text-sm font-medium transition-colors"
+        >
+          <i class="fas fa-truck w-5"></i> Supplier Master
+        </button>
+        <button
+          onclick="navigate('user')"
+          id="nav-user"
+          class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 text-sm font-medium transition-colors"
+        >
+          <i class="fas fa-users w-5"></i> User Master
+        </button>
+        <button
+          onclick="navigate('history')"
+          id="nav-history"
+          class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 text-sm font-medium transition-colors"
+        >
+          <i class="fas fa-handshake w-5"></i> Negotiation Hub
+        </button>
+      </nav>
+
+      <div class="p-4 border-t border-gray-100">
+        <div class="flex items-center gap-3 px-2">
+          <div
+            class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600"
+          >
+            <i class="fas fa-user"></i>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-700">Admin User</p>
+            <p class="text-xs text-gray-500">Super Admin</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MOBILE MENU BUTTON -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+      <button
+        onclick="toggleMobileMenu && toggleMobileMenu()"
+        class="p-2 bg-white rounded shadow text-gray-600"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-y-auto relative">
+      <!-- Header for Mobile -->
+      <header
+        class="bg-white border-b border-gray-200 p-4 md:hidden flex justify-center"
+      >
+        <h1 class="text-lg font-bold text-gray-800">Admin Panel</h1>
+      </header>
+
+      <div class="p-4 md:p-8 max-w-7xl mx-auto min-h-full">
+        <!-- 1. DASHBOARD SCREEN -->
+        <section id="screen-dashboard" class="fade-in space-y-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Analytics Overview</h2>
+            <div class="flex gap-2">
+              <select
+                class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+              >
+                <option>Last 30 Days</option>
+                <option>This Quarter</option>
+                <option>This Year</option>
+              </select>
+              <button
+                class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700 transition"
+              >
+                <i class="fas fa-download mr-2"></i>Report
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Total Spend</p>
+                  <h3 class="text-2xl font-bold text-gray-800">$2.4M</h3>
+                  <p class="text-xs text-green-500 mt-1">
+                    <i class="fas fa-arrow-up"></i> 12% vs last month
+                  </p>
+                </div>
+                <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                  <i class="fas fa-dollar-sign"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Active Suppliers</p>
+                  <h3 class="text-2xl font-bold text-gray-800">142</h3>
+                  <p class="text-xs text-blue-500 mt-1">4 New this week</p>
+                </div>
+                <div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                  <i class="fas fa-truck"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Pending Negotations</p>
+                  <h3 class="text-2xl font-bold text-gray-800">28</h3>
+                  <p class="text-xs text-orange-500 mt-1">High Priority: 5</p>
+                </div>
+                <div class="p-2 bg-orange-50 text-orange-600 rounded-lg">
+                  <i class="fas fa-comments"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Savings Achieved</p>
+                  <h3 class="text-2xl font-bold text-gray-800">$320k</h3>
+                  <p class="text-xs text-green-500 mt-1">15% Margin</p>
+                </div>
+                <div class="p-2 bg-green-50 text-green-600 rounded-lg">
+                  <i class="fas fa-piggy-bank"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4">
+                Monthly Procurement Spend
+              </h4>
+              <div class="h-64"><canvas id="chart-spend"></canvas></div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4">
+                Supplier Performance Rating
+              </h4>
+              <div class="h-64"><canvas id="chart-performance"></canvas></div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4">
+                Spend by Category
+              </h4>
+              <div class="h-64"><canvas id="chart-category"></canvas></div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4">
+                Negotiation Success Rate
+              </h4>
+              <div class="h-64"><canvas id="chart-negotiation"></canvas></div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4">
+                On-Time Delivery Stats
+              </h4>
+              <div class="h-64"><canvas id="chart-delivery"></canvas></div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
+              <h4 class="text-sm font-semibold text-gray-700 mb-4">
+                Contract Renewals (Upcoming)
+              </h4>
+              <div class="h-64"><canvas id="chart-renewals"></canvas></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. SUPPLIER MASTER SCREEN -->
+        <section id="screen-supplier" class="hidden fade-in space-y-6">
+          <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">Supplier Master</h2>
+              <p class="text-gray-500 text-sm">
+                Manage vendor relationships and details.
+              </p>
+            </div>
+            <button
+              onclick="openSupplierModal('add')"
+              class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm flex items-center gap-2"
+            >
+              <i class="fas fa-plus"></i> Add New Supplier
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-gray-600">
+                <thead
+                  class="bg-gray-50 border-b border-gray-200 font-semibold uppercase text-xs text-gray-500"
+                >
+                  <tr>
+                    <th class="px-6 py-4">Supplier Name</th>
+                    <th class="px-6 py-4">Category</th>
+                    <th class="px-6 py-4">Total Contracts</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="supplier-table-body" class="divide-y divide-gray-100">
+                  <!-- JS will render supplier rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. USER MASTER SCREEN -->
+        <section id="screen-user" class="hidden fade-in space-y-6">
+          <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">User Management</h2>
+              <p class="text-gray-500 text-sm">
+                Control access for Admins and Supplier Agents.
+              </p>
+            </div>
+            <button
+              onclick="openUserModal('add')"
+              class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm flex items-center gap-2"
+            >
+              <i class="fas fa-user-plus"></i> Add New User
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-gray-600">
+                <thead
+                  class="bg-gray-50 border-b border-gray-200 font-semibold uppercase text-xs text-gray-500"
+                >
+                  <tr>
+                    <th class="px-6 py-4">Name</th>
+                    <th class="px-6 py-4">Email</th>
+                    <th class="px-6 py-4">Role</th>
+                    <th class="px-6 py-4">Access</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="user-table-body" class="divide-y divide-gray-100">
+                  <!-- JS will render users -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. NEGOTIATION/HISTORY SCREEN -->
+        <section
+          id="screen-history"
+          class="hidden fade-in h-[calc(100vh-100px)] flex flex-col"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">Negotiation Hub</h2>
+              <p class="text-sm text-gray-500">
+                Real-time price negotiation with history.
+              </p>
+            </div>
+            <div></div>
+          </div>
+
+          <div class="flex flex-1 gap-6 overflow-hidden">
+            <!-- List of Negotiations -->
+            <div
+              class="w-1/3 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col hidden md:flex"
+            >
+              <div class="p-4 border-b border-gray-100 bg-gray-50">
+                <div class="flex gap-2">
+                  <select
+                    id="supplier-filter-select"
+                    class="text-xs md:text-sm border border-gray-200 rounded-lg px-2 py-2 flex-shrink-0 bg-white focus:outline-none focus:border-blue-500 w-32 md:w-40"
+                  ></select>
+                  <div class="relative flex-1">
+                    <i
+                      class="fas fa-search absolute left-3 top-3 text-gray-400 text-xs"
+                    ></i>
+                    <input
+                      id="negotiation-search"
+                      type="text"
+                      placeholder="Search suppliers..."
+                      class="w-full pl-8 pr-3 py-2 text-xs md:text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                      oninput="renderNegotiationList()"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div
+                id="negotiation-list"
+                class="overflow-y-auto flex-1 p-2 space-y-1"
+              ></div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div
+              class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden"
+            >
+              <!-- Chat Header -->
+              <div
+                class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold"
+                  >
+                    <span id="chat-avatar-initial">-</span>
+                  </div>
+                  <div>
+                    <h3 id="chat-title" class="font-bold text-gray-800">
+                      No Supplier Selected
+                    </h3>
+                    <p class="text-xs text-gray-500">
+                      with
+                      <span
+                        id="chat-supplier-name"
+                        class="font-medium text-gray-700"
+                        >-</span
+                      >
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Right side: current offer, status, POC button -->
+                <div class="flex items-center gap-3 md:gap-4">
+                  <div class="text-right">
+                    <p class="text-xs text-gray-500">Current Offer</p>
+                    <p
+                      class="text-xl font-bold text-gray-800"
+                      id="current-price"
+                    >
+                      -
+                    </p>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500">Status</span>
+                    <select
+                      id="chat-status-select"
+                      class="text-xs border border-gray-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:border-blue-500"
+                      onchange="changeNegotiationStatus(this.value)"
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Closed">Closed</option>
+                    </select>
+                  </div>
+
+                  <!-- NEW: View POC button -->
+                  <button
+                    id="view-poc-btn"
+                    onclick="openPocViewModal()"
+                    class="hidden md:flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition"
+                  >
+                    <i class="fas fa-id-badge text-blue-600"></i>
+                    View POC
+                  </button>
+                </div>
+              </div>
+
+              <!-- Messages Area -->
+              <div
+                id="chat-container"
+                class="flex-1 p-6 overflow-y-auto flex flex-col bg-white"
+              >
+                <div class="text-sm text-gray-400 text-center mt-10">
+                  Select a supplier from the left to view or start a negotiation.
+                </div>
+              </div>
+
+              <!-- Input Area -->
+              <div class="p-4 border-t border-gray-200 bg-gray-50">
+                <div class="flex gap-4 flex-col md:flex-row">
+                  <div class="relative flex-1">
+                    <span class="absolute left-4 top-3 text-gray-500 font-bold"
+                      >$</span
+                    >
+                    <input
+                      type="number"
+                      id="price-input"
+                      placeholder="Enter Counter Offer"
+                      class="w-full pl-8 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    id="note-input"
+                    placeholder="Add a note (optional)..."
+                    class="flex-[2] px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
+                  />
+                  <button
+                    onclick="sendOffer()"
+                    class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-sm flex items-center justify-center gap-2"
+                  >
+                    <span id="send-btn-text">Send Offer</span>
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+                </div>
+                <p class="text-xs text-gray-400 mt-2 text-center" id="role-hint">
+                  You are acting as <b>Admin</b>. Offers are logged per supplier.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- SUPPLIER MODAL -->
+    <div
+      id="supplier-modal"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-40 hidden"
+    >
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-gray-200"
+        >
+          <h3
+            id="supplier-modal-title"
+            class="text-lg font-semibold text-gray-800"
+          >
+            Add Supplier
+          </h3>
+          <button
+            onclick="closeSupplierModal()"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <form id="supplier-form" class="px-6 py-4 space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Supplier Name</label
+            >
+            <input
+              type="text"
+              id="supplier-name"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Category</label
+            >
+            <input
+              type="text"
+              id="supplier-category"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Total Contracts</label
+            >
+            <input
+              type="number"
+              id="supplier-contracts"
+              min="0"
+              value="0"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Status</label
+            >
+            <select
+              id="supplier-status"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <!-- NEW: Supplier POC Details (stored, editable, not shown in table) -->
+          <div class="pt-2 border-t border-gray-200">
+            <h4 class="text-sm font-semibold text-gray-700 mb-2">
+              Supplier POC Details
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1"
+                  >POC Name</label
+                >
+                <input
+                  type="text"
+                  id="supplier-poc-name"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                  placeholder="e.g. Rahul Sharma"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1"
+                  >POC Email</label
+                >
+                <input
+                  type="email"
+                  id="supplier-poc-email"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                  placeholder="poc@company.com"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1"
+                  >POC Phone</label
+                >
+                <input
+                  type="text"
+                  id="supplier-poc-phone"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1"
+                  >POC Designation</label
+                >
+                <input
+                  type="text"
+                  id="supplier-poc-role"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                  placeholder="Sales Manager"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onclick="closeSupplierModal()"
+              class="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- USER MODAL -->
+    <div
+      id="user-modal"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-40 hidden"
+    >
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-gray-200"
+        >
+          <h3 id="user-modal-title" class="text-lg font-semibold text-gray-800">
+            Add User
+          </h3>
+          <button
+            onclick="closeUserModal()"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <form id="user-form" class="px-6 py-4 space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Name</label
+            >
+            <input
+              type="text"
+              id="user-name"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Email</label
+            >
+            <input
+              type="email"
+              id="user-email"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+              placeholder="user@example.com"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Role</label
+            >
+            <input
+              type="text"
+              id="user-role"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+              placeholder="e.g. Super Admin, Supplier Agent"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Access</label
+            >
+            <input
+              type="text"
+              id="user-access"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+              placeholder="e.g. Full Access, Negotiation Only"
+            />
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onclick="closeUserModal()"
+              class="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- INITIAL PRICE MODAL FOR NEGOTIATION -->
+    <div
+      id="initial-price-modal"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-40 hidden"
+    >
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-gray-200"
+        >
+          <h3
+            id="initial-price-title"
+            class="text-lg font-semibold text-gray-800"
+          >
+            Start Negotiation
+          </h3>
+          <button
+            onclick="closeInitialPriceModal()"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <form id="initial-price-form" class="px-6 py-4 space-y-4">
+          <p class="text-xs text-gray-500" id="initial-price-helper">
+            Set an initial price offer to start negotiation with this supplier.
+          </p>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Initial Price</label
+            >
+            <input
+              type="number"
+              id="initial-price-input"
+              min="0"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Note (optional)</label
+            >
+            <textarea
+              id="initial-note-input"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+              rows="2"
+              placeholder="Add context for this initial offer..."
+            ></textarea>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onclick="closeInitialPriceModal()"
+              class="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            >
+              Start
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- NEW: POC VIEW MODAL -->
+    <div
+      id="poc-view-modal"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+        <div class="flex items-center justify-between px-6 py-4 border-b">
+          <h3 class="text-lg font-semibold text-gray-800">
+            Supplier POC Details
+          </h3>
+          <button
+            onclick="closePocViewModal()"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="px-6 py-4 space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-500">Name</span>
+            <span id="poc-view-name" class="font-semibold text-gray-800">-</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Email</span>
+            <span id="poc-view-email" class="font-semibold text-gray-800">-</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Phone</span>
+            <span id="poc-view-phone" class="font-semibold text-gray-800">-</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Designation</span>
+            <span id="poc-view-role" class="font-semibold text-gray-800">-</span>
+          </div>
+
+          <div class="pt-3 flex justify-end gap-2">
+            <button
+              onclick="openSupplierEditFromChat()"
+              class="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              Edit Supplier
+            </button>
+            <button
+              onclick="closePocViewModal()"
+              class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- 1. NAVIGATION LOGIC ---
+      function navigate(screenId) {
+        document
+          .querySelectorAll("main section")
+          .forEach((el) => el.classList.add("hidden"));
+        const target = document.getElementById("screen-" + screenId);
+        if (target) target.classList.remove("hidden");
+
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((el) =>
+            el.classList.remove("active", "bg-blue-600", "text-white")
+          );
+        const navItem = document.getElementById("nav-" + screenId);
+        if (navItem) navItem.classList.add("active");
+      }
+
+      // --- 2. CHAT / NEGOTIATION STATE ---
+      const ADMIN_ROLE = "admin";
+      let currentRole = ADMIN_ROLE; // fixed as admin
+
+      // Suppliers (now includes poc)
+      let suppliers = [
+        {
+          id: 1,
+          name: "TechGlobal Solutions",
+          category: "Electronics",
+          contracts: 12,
+          status: "Active",
+          poc: {
+            name: "Sarah Smith",
+            email: "sarah.smith@example.com",
+            phone: "+1 555-1234",
+            role: "Account Manager",
+          },
+        },
+        {
+          id: 2,
+          name: "SteelWorks Industries",
+          category: "Raw Materials",
+          contracts: 5,
+          status: "Inactive",
+          poc: { name: "", email: "", phone: "", role: "" },
+        },
+        {
+          id: 3,
+          name: "LogiTrans Corp",
+          category: "Logistics",
+          contracts: 24,
+          status: "Active",
+          poc: { name: "", email: "", phone: "", role: "" },
+        },
+      ];
+
+      // Negotiations per supplierId
+      // status: 'Active' | 'Closed'
+      // messages: current round messages
+      // rounds: past finalized rounds
+      let negotiations = {};
+
+      // Seed example negotiation for TechGlobal
+      negotiations[1] = {
+        status: "Active",
+        messages: [
+          {
+            role: "admin",
+            price: 12000,
+            note:
+              "We are looking to close this batch at $12k based on previous volume.",
+            time: "10:30 AM",
+          },
+          {
+            role: "supplier",
+            price: 14500,
+            note:
+              "Raw material costs have increased. $12k is below our margin.",
+            time: "10:45 AM",
+          },
+          {
+            role: "admin",
+            price: 13000,
+            note: "We can stretch to $13k if delivery is expedited.",
+            time: "11:15 AM",
+          },
+          {
+            role: "supplier",
+            price: 13500,
+            note:
+              "We can meet you at $13.5k with standard delivery timeline.",
+            time: "11:30 AM",
+          },
+        ],
+        rounds: [],
+      };
+
+      let currentSupplierId = null;
+      let editingSupplierIndex = null;
+      let editingUserIndex = null;
+      let initialPriceSupplierId = null;
+
+      // --- 3. NEGOTIATION RENDERING ---
+
+      function getCurrentNegotiation() {
+        if (!currentSupplierId) return null;
+        return negotiations[currentSupplierId] || null;
+      }
+
+      function finalizeCurrentNegotiationRound(supplierId) {
+        const negotiation = negotiations[supplierId];
+        if (!negotiation || !negotiation.messages?.length) return;
+
+        const lastMsg =
+          negotiation.messages[negotiation.messages.length - 1];
+        const now = new Date();
+
+        const finalizedAt = now.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+
+        const round = {
+          finalizedAt,
+          finalPrice: lastMsg.price,
+          messages: [...negotiation.messages],
+        };
+
+        if (!negotiation.rounds) negotiation.rounds = [];
+        negotiation.rounds.push(round);
+
+        // clear current round
+        negotiation.messages = [];
+      }
+
+      function startNewNegotiation() {
+        if (!currentSupplierId) return;
+        openInitialPriceModal(currentSupplierId);
+      }
+
+      function renderMessages() {
+        const container = document.getElementById("chat-container");
+        const negotiation = getCurrentNegotiation();
+        container.innerHTML = "";
+
+        if (!currentSupplierId) {
+          container.innerHTML = `<div class="text-sm text-gray-400 text-center mt-10">
+                Select a supplier from the left to view or start a negotiation.
+            </div>`;
+          document.getElementById("current-price").innerText = "-";
+          document.getElementById("chat-status-select").value = "Active";
+          return;
+        }
+
+        if (!negotiation) {
+          container.innerHTML = `<div class="text-sm text-gray-400 text-center mt-10">
+                No negotiation history yet. Start with an initial price.
+            </div>`;
+          document.getElementById("current-price").innerText = "-";
+          document.getElementById("chat-status-select").value = "Active";
+          return;
+        }
+
+        // Render past finalized rounds
+        if (negotiation.rounds?.length) {
+          negotiation.rounds.forEach((round, roundIndex) => {
+            const roundLabel = document.createElement("div");
+            roundLabel.className =
+              "text-xs text-gray-400 text-center my-4 font-medium uppercase tracking-wider";
+            roundLabel.innerText = `Round ${roundIndex + 1}`;
+            container.appendChild(roundLabel);
+
+            round.messages.forEach((msg) => {
+              const bubble = document.createElement("div");
+              const isMe = msg.role === currentRole;
+              bubble.className = `msg-bubble flex flex-col shadow-sm ${
+                isMe ? "msg-admin" : "msg-supplier"
+              }`;
+              bubble.innerHTML = `
+                <div class="font-bold text-lg border-b border-white/20 pb-1 mb-1 flex justify-between items-center">
+                    <span>$${msg.price.toLocaleString()}</span>
+                    <span class="text-[10px] uppercase tracking-wide opacity-75">${msg.role}</span>
+                </div>
+                <p class="leading-relaxed">${msg.note}</p>
+                <div class="msg-meta">${msg.time}</div>
+              `;
+              container.appendChild(bubble);
+            });
+
+            const finalizedLine = document.createElement("div");
+            finalizedLine.className =
+              "mt-3 mb-6 text-sm text-gray-600 bg-green-50 border border-green-100 rounded-lg px-4 py-2 text-center font-semibold";
+            finalizedLine.innerText = `Final Price: $${round.finalPrice.toLocaleString()} — Finalised on ${round.finalizedAt}`;
+            container.appendChild(finalizedLine);
+          });
+        }
+
+        // If no current messages, show prompt to start new
+        if (!negotiation.messages?.length) {
+          const promptWrap = document.createElement("div");
+          promptWrap.className =
+            "mt-4 p-4 border border-dashed border-gray-300 rounded-xl text-center bg-gray-50";
+
+          promptWrap.innerHTML = `
+            <p class="text-sm text-gray-600 mb-3">
+              This negotiation is finalised. Start a new negotiation with a fresh initial price.
+            </p>
+            <button
+              onclick="startNewNegotiation()"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+            >
+              + Start New Initial Price
+            </button>
+          `;
+          container.appendChild(promptWrap);
+
+          document.getElementById("current-price").innerText = "-";
+          document.getElementById("chat-status-select").value =
+            negotiation.status || "Active";
+          return;
+        }
+
+        const dateDiv = document.createElement("div");
+        dateDiv.className =
+          "text-xs text-gray-400 text-center my-4 font-medium uppercase tracking-wider";
+        dateDiv.innerText = "Today";
+        container.appendChild(dateDiv);
+
+        negotiation.messages.forEach((msg) => {
+          const bubble = document.createElement("div");
+          const isMe = msg.role === currentRole;
+          bubble.className = `msg-bubble flex flex-col shadow-sm ${
+            isMe ? "msg-admin" : "msg-supplier"
+          }`;
+          bubble.innerHTML = `
+            <div class="font-bold text-lg border-b border-white/20 pb-1 mb-1 flex justify-between items-center">
+                <span>$${msg.price.toLocaleString()}</span>
+                <span class="text-[10px] uppercase tracking-wide opacity-75">${msg.role}</span>
+            </div>
+            <p class="leading-relaxed">${msg.note}</p>
+            <div class="msg-meta">${msg.time}</div>
+          `;
+          container.appendChild(bubble);
+        });
+
+        const lastMsg = negotiation.messages[negotiation.messages.length - 1];
+        document.getElementById("current-price").innerText =
+          "$" + lastMsg.price.toLocaleString();
+        document.getElementById("chat-status-select").value =
+          negotiation.status || "Active";
+
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function updateChatHeader() {
+        const supplier = suppliers.find((s) => s.id === currentSupplierId);
+        const titleEl = document.getElementById("chat-title");
+        const supplierEl = document.getElementById("chat-supplier-name");
+        const avatarEl = document.getElementById("chat-avatar-initial");
+        const pocBtn = document.getElementById("view-poc-btn");
+
+        if (!supplier) {
+          titleEl.innerText = "No Supplier Selected";
+          supplierEl.innerText = "-";
+          avatarEl.innerText = "-";
+          pocBtn.classList.add("hidden");
+          return;
+        }
+
+        titleEl.innerText = `Negotiation: ${supplier.name}`;
+        supplierEl.innerText = supplier.name;
+        avatarEl.innerText = supplier.name.charAt(0).toUpperCase();
+        pocBtn.classList.remove("hidden");
+      }
+
+      function changeNegotiationStatus(status) {
+        const negotiation = getCurrentNegotiation();
+        if (!negotiation) return;
+
+        if (status === "Closed" && negotiation.status !== "Closed") {
+          negotiation.status = "Closed";
+          finalizeCurrentNegotiationRound(currentSupplierId);
+        } else {
+          negotiation.status = "Active";
+        }
+
+        renderMessages();
+        renderNegotiationList();
+      }
+
+      function sendOffer() {
+        if (!currentSupplierId) {
+          alert("Please select a supplier from the left first.");
+          return;
+        }
+
+        const negotiation = getCurrentNegotiation();
+        if (!negotiation) {
+          alert("No negotiation history yet. Start with an initial price.");
+          return;
+        }
+
+        if (negotiation.status === "Closed") {
+          alert("This negotiation is closed. Start a new round.");
+          return;
+        }
+
+        const priceInput = document.getElementById("price-input");
+        const noteInput = document.getElementById("note-input");
+
+        if (!priceInput.value) return alert("Please enter a price offer.");
+
+        const now = new Date();
+        const timeString =
+          now.getHours() + ":" + String(now.getMinutes()).padStart(2, "0");
+
+        negotiation.messages.push({
+          role: currentRole,
+          price: parseInt(priceInput.value, 10),
+          note: noteInput.value || "New offer submitted.",
+          time: timeString,
+        });
+
+        priceInput.value = "";
+        noteInput.value = "";
+
+        renderMessages();
+        renderNegotiationList();
+      }
+
+      // --- 4. NEGOTIATION LIST + FILTER UI ---
+      function populateSupplierFilterSelect() {
+        const select = document.getElementById("supplier-filter-select");
+        if (!select) return;
+        select.innerHTML = "";
+
+        const allOption = document.createElement("option");
+        allOption.value = "";
+        allOption.textContent = "All Suppliers";
+        select.appendChild(allOption);
+
+        suppliers.forEach((s) => {
+          const opt = document.createElement("option");
+          opt.value = String(s.id);
+          opt.textContent = s.name;
+          select.appendChild(opt);
+        });
+
+        select.onchange = renderNegotiationList;
+      }
+
+      function renderNegotiationList() {
+        const list = document.getElementById("negotiation-list");
+        const searchValue = (
+          document.getElementById("negotiation-search")?.value || ""
+        ).toLowerCase();
+        const filterSelect = document.getElementById("supplier-filter-select");
+        const filterSupplierId =
+          filterSelect && filterSelect.value
+            ? parseInt(filterSelect.value, 10)
+            : null;
+
+        list.innerHTML = "";
+
+        suppliers.forEach((s) => {
+          if (filterSupplierId && s.id !== filterSupplierId) return;
+          if (searchValue && !s.name.toLowerCase().includes(searchValue))
+            return;
+
+          const negotiation = negotiations[s.id] || null;
+          const status = negotiation ? negotiation.status : null;
+
+          const lastMsg =
+            negotiation?.messages?.length
+              ? negotiation.messages[negotiation.messages.length - 1]
+              : negotiation?.rounds?.length
+              ? negotiation.rounds[negotiation.rounds.length - 1].messages[
+                  negotiation.rounds[negotiation.rounds.length - 1].messages
+                    .length - 1
+                ]
+              : null;
+
+          const item = document.createElement("div");
+          item.className = "p-3 rounded-lg cursor-pointer transition border";
+
+          if (status === "Active") {
+            item.classList.add("bg-blue-50", "border-blue-100");
+          } else if (status === "Closed") {
+            item.classList.add("bg-gray-50", "border-gray-200");
+          } else {
+            item.classList.add("hover:bg-gray-50", "border-transparent");
+          }
+
+          const statusBadge = status
+            ? `<span class="text-xs font-semibold ${
+                status === "Active" ? "text-blue-600" : "text-gray-500"
+              }">${status}</span>`
+            : `<span class="text-xs text-gray-300">No Chat</span>`;
+
+          const lastLine = lastMsg
+            ? `<div class="mt-2 flex justify-between text-xs">
+                  <span class="text-gray-400">Last: $${lastMsg.price.toLocaleString()}</span>
+                  <span class="text-gray-400">${lastMsg.time || ""}</span>
+                </div>`
+            : `<div class="mt-2 text-xs text-gray-300 italic">No history yet</div>`;
+
+          item.innerHTML = `
+            <div class="flex justify-between mb-1">
+                <h4 class="font-bold text-gray-800 text-sm">${s.name}</h4>
+                ${statusBadge}
+            </div>
+            <p class="text-xs text-gray-500">${s.category}</p>
+            ${lastLine}
+          `;
+
+          item.onclick = () => onSupplierNegotiationClick(s.id);
+          list.appendChild(item);
+        });
+
+        if (!list.innerHTML) {
+          list.innerHTML = `<div class="text-xs text-gray-400 text-center mt-4">No suppliers found.</div>`;
+        }
+      }
+
+      function onSupplierNegotiationClick(supplierId) {
+        currentSupplierId = supplierId;
+
+        if (!negotiations[supplierId]) {
+          negotiations[supplierId] = {
+            status: "Active",
+            messages: [],
+            rounds: [],
+          };
+        }
+
+        updateChatHeader();
+        const negotiation = negotiations[supplierId];
+
+        if (!negotiation.messages?.length && !negotiation.rounds?.length) {
+          openInitialPriceModal(supplierId);
+        } else {
+          renderMessages();
+        }
+      }
+
+      // --- 5. INITIAL PRICE MODAL LOGIC ---
+      function openInitialPriceModal(supplierId) {
+        initialPriceSupplierId = supplierId;
+        const supplier = suppliers.find((s) => s.id === supplierId);
+        const titleEl = document.getElementById("initial-price-title");
+        const helperEl = document.getElementById("initial-price-helper");
+
+        titleEl.innerText = supplier
+          ? `Start Negotiation with ${supplier.name}`
+          : "Start Negotiation";
+        helperEl.innerText = supplier
+          ? `Set an initial price offer to start negotiation with ${supplier.name}.`
+          : "Set an initial price offer to start the negotiation.";
+
+        document.getElementById("initial-price-input").value = "";
+        document.getElementById("initial-note-input").value = "";
+
+        document
+          .getElementById("initial-price-modal")
+          .classList.remove("hidden");
+      }
+
+      function closeInitialPriceModal() {
+        document.getElementById("initial-price-modal").classList.add("hidden");
+        initialPriceSupplierId = null;
+      }
+
+      document
+        .getElementById("initial-price-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!initialPriceSupplierId) return;
+
+          const priceVal = document.getElementById("initial-price-input").value;
+          if (!priceVal) return;
+
+          const noteVal =
+            document.getElementById("initial-note-input").value ||
+            "Initial offer submitted.";
+
+          const now = new Date();
+          const timeString =
+            now.getHours() + ":" + String(now.getMinutes()).padStart(2, "0");
+
+          if (!negotiations[initialPriceSupplierId]) {
+            negotiations[initialPriceSupplierId] = {
+              status: "Active",
+              messages: [],
+              rounds: [],
+            };
+          }
+
+          negotiations[initialPriceSupplierId].status = "Active";
+          negotiations[initialPriceSupplierId].messages = [
+            {
+              role: currentRole,
+              price: parseInt(priceVal, 10),
+              note: noteVal,
+              time: timeString,
+            },
+          ];
+
+          currentSupplierId = initialPriceSupplierId;
+          closeInitialPriceModal();
+          updateChatHeader();
+          renderMessages();
+          renderNegotiationList();
+        });
+
+      // --- 6. SUPPLIER MASTER DYNAMIC LOGIC ---
+      function renderSuppliers() {
+        const tbody = document.getElementById("supplier-table-body");
+        tbody.innerHTML = "";
+
+        suppliers.forEach((s, index) => {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-gray-50 transition";
+
+          const statusClass =
+            s.status === "Active"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700";
+
+          tr.innerHTML = `
+            <td class="px-6 py-4 font-medium text-gray-800">${s.name}</td>
+            <td class="px-6 py-4">
+                <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">${s.category}</span>
+            </td>
+            <td class="px-6 py-4">${s.contracts}</td>
+            <td class="px-6 py-4">
+                <span class="${statusClass} px-2 py-1 rounded-full text-xs">${s.status}</span>
+            </td>
+            <td class="px-6 py-4 text-right">
+                <button class="text-gray-400 hover:text-blue-600 px-2" onclick="openSupplierModal('edit', ${index})"><i class="fas fa-edit"></i></button>
+                <button class="text-gray-400 hover:text-red-600 px-2" onclick="deleteSupplier(${index})"><i class="fas fa-trash"></i></button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        populateSupplierFilterSelect();
+        renderNegotiationList();
+      }
+
+      function openSupplierModal(mode, index = null) {
+        const modal = document.getElementById("supplier-modal");
+        const title = document.getElementById("supplier-modal-title");
+        const nameInput = document.getElementById("supplier-name");
+        const categoryInput = document.getElementById("supplier-category");
+        const contractsInput = document.getElementById("supplier-contracts");
+        const statusSelect = document.getElementById("supplier-status");
+
+        const pocName = document.getElementById("supplier-poc-name");
+        const pocEmail = document.getElementById("supplier-poc-email");
+        const pocPhone = document.getElementById("supplier-poc-phone");
+        const pocRole = document.getElementById("supplier-poc-role");
+
+        if (mode === "add") {
+          editingSupplierIndex = null;
+          title.textContent = "Add Supplier";
+          nameInput.value = "";
+          categoryInput.value = "";
+          contractsInput.value = 0;
+          statusSelect.value = "Active";
+
+          pocName.value = "";
+          pocEmail.value = "";
+          pocPhone.value = "";
+          pocRole.value = "";
+        } else if (mode === "edit" && index !== null) {
+          editingSupplierIndex = index;
+          const s = suppliers[index];
+          title.textContent = "Edit Supplier";
+          nameInput.value = s.name;
+          categoryInput.value = s.category;
+          contractsInput.value = s.contracts;
+          statusSelect.value = s.status;
+
+          pocName.value = s.poc?.name || "";
+          pocEmail.value = s.poc?.email || "";
+          pocPhone.value = s.poc?.phone || "";
+          pocRole.value = s.poc?.role || "";
+        }
+
+        modal.classList.remove("hidden");
+      }
+
+      function closeSupplierModal() {
+        document.getElementById("supplier-modal").classList.add("hidden");
+      }
+
+      function deleteSupplier(index) {
+        const supplier = suppliers[index];
+        if (confirm("Are you sure you want to delete this supplier?")) {
+          suppliers.splice(index, 1);
+          if (supplier && negotiations[supplier.id]) {
+            delete negotiations[supplier.id];
+          }
+          if (currentSupplierId === (supplier && supplier.id)) {
+            currentSupplierId = null;
+            updateChatHeader();
+            renderMessages();
+          }
+          renderSuppliers();
+        }
+      }
+
+      document
+        .getElementById("supplier-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const name = document.getElementById("supplier-name").value.trim();
+          const category = document
+            .getElementById("supplier-category")
+            .value.trim();
+          const contracts = parseInt(
+            document.getElementById("supplier-contracts").value || "0",
+            10
+          );
+          const status = document.getElementById("supplier-status").value;
+
+          const poc = {
+            name: document.getElementById("supplier-poc-name").value.trim(),
+            email: document.getElementById("supplier-poc-email").value.trim(),
+            phone: document.getElementById("supplier-poc-phone").value.trim(),
+            role: document.getElementById("supplier-poc-role").value.trim(),
+          };
+
+          if (!name || !category) return;
+
+          if (editingSupplierIndex === null) {
+            const newId = Date.now();
+            suppliers.push({
+              id: newId,
+              name,
+              category,
+              contracts,
+              status,
+              poc,
+            });
+
+            negotiations[newId] = { status: "Active", messages: [], rounds: [] };
+          } else {
+            const prevId = suppliers[editingSupplierIndex].id;
+            suppliers[editingSupplierIndex] = {
+              ...suppliers[editingSupplierIndex],
+              name,
+              category,
+              contracts,
+              status,
+              poc,
+              id: prevId,
+            };
+          }
+
+          renderSuppliers();
+          closeSupplierModal();
+
+          // if editing currently selected supplier, refresh header + POC modal data
+          if (currentSupplierId) updateChatHeader();
+        });
+
+      // --- 7. USER MASTER DYNAMIC LOGIC ---
+      let users = [
+        {
+          id: 1,
+          name: "John Doe",
+          email: "john.doe@example.com",
+          role: "Super Admin",
+          access: "Full Access",
+        },
+        {
+          id: 2,
+          name: "Sarah Smith (TechGlobal)",
+          email: "sarah.smith@example.com",
+          role: "Supplier Agent",
+          access: "Negotiation Only",
+        },
+        {
+          id: 3,
+          name: "Mike Ross",
+          email: "mike.ross@example.com",
+          role: "Procurement Manager",
+          access: "Approver",
+        },
+      ];
+
+      function renderUsers() {
+        const tbody = document.getElementById("user-table-body");
+        tbody.innerHTML = "";
+
+        users.forEach((u, index) => {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-gray-50 transition";
+
+          tr.innerHTML = `
+            <td class="px-6 py-4 font-medium text-gray-800">${u.name}</td>
+            <td class="px-6 py-4 text-gray-600">${u.email}</td>
+            <td class="px-6 py-4 text-gray-600">${u.role}</td>
+            <td class="px-6 py-4">
+                <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">${u.access}</span>
+            </td>
+            <td class="px-6 py-4 text-right">
+                <button class="text-gray-400 hover:text-blue-600 px-2" onclick="openUserModal('edit', ${index})"><i class="fas fa-edit"></i></button>
+                <button class="text-gray-400 hover:text-red-600 px-2" onclick="deleteUser(${index})"><i class="fas fa-trash"></i></button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function openUserModal(mode, index = null) {
+        const modal = document.getElementById("user-modal");
+        const title = document.getElementById("user-modal-title");
+        const nameInput = document.getElementById("user-name");
+        const emailInput = document.getElementById("user-email");
+        const roleInput = document.getElementById("user-role");
+        const accessInput = document.getElementById("user-access");
+
+        if (mode === "add") {
+          editingUserIndex = null;
+          title.textContent = "Add User";
+          nameInput.value = "";
+          emailInput.value = "";
+          roleInput.value = "";
+          accessInput.value = "";
+        } else if (mode === "edit" && index !== null) {
+          editingUserIndex = index;
+          const u = users[index];
+          title.textContent = "Edit User";
+          nameInput.value = u.name;
+          emailInput.value = u.email;
+          roleInput.value = u.role;
+          accessInput.value = u.access;
+        }
+
+        modal.classList.remove("hidden");
+      }
+
+      function closeUserModal() {
+        document.getElementById("user-modal").classList.add("hidden");
+      }
+
+      function deleteUser(index) {
+        if (confirm("Are you sure you want to delete this user?")) {
+          users.splice(index, 1);
+          renderUsers();
+        }
+      }
+
+      document
+        .getElementById("user-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const name = document.getElementById("user-name").value.trim();
+          const email = document.getElementById("user-email").value.trim();
+          const role = document.getElementById("user-role").value.trim();
+          const access = document.getElementById("user-access").value.trim();
+
+          if (!name || !email || !role || !access) return;
+
+          if (editingUserIndex === null) {
+            users.push({
+              id: Date.now(),
+              name,
+              email,
+              role,
+              access,
+            });
+          } else {
+            users[editingUserIndex] = {
+              ...users[editingUserIndex],
+              name,
+              email,
+              role,
+              access,
+            };
+          }
+
+          renderUsers();
+          closeUserModal();
+        });
+
+      // --- 8. POC VIEW MODAL LOGIC ---
+      function openPocViewModal() {
+        if (!currentSupplierId) return;
+        const supplier = suppliers.find((s) => s.id === currentSupplierId);
+        if (!supplier) return;
+
+        document.getElementById("poc-view-name").innerText =
+          supplier.poc?.name || "-";
+        document.getElementById("poc-view-email").innerText =
+          supplier.poc?.email || "-";
+        document.getElementById("poc-view-phone").innerText =
+          supplier.poc?.phone || "-";
+        document.getElementById("poc-view-role").innerText =
+          supplier.poc?.role || "-";
+
+        document.getElementById("poc-view-modal").classList.remove("hidden");
+      }
+
+      function closePocViewModal() {
+        document.getElementById("poc-view-modal").classList.add("hidden");
+      }
+
+      function openSupplierEditFromChat() {
+        if (!currentSupplierId) return;
+        const index = suppliers.findIndex((s) => s.id === currentSupplierId);
+        if (index === -1) return;
+        closePocViewModal();
+        navigate("supplier");
+        openSupplierModal("edit", index);
+      }
+
+      // --- 9. CHARTS LOGIC (Chart.js) ---
+      function initCharts() {
+        const commonOptions = { responsive: true, maintainAspectRatio: false };
+
+        new Chart(document.getElementById("chart-spend"), {
+          type: "line",
+          data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            datasets: [
+              {
+                label: "Spend ($)",
+                data: [120000, 190000, 30000, 50000, 200000, 300000],
+                borderColor: "#3b82f6",
+                backgroundColor: "rgba(59, 130, 246, 0.1)",
+                fill: true,
+                tension: 0.4,
+              },
+            ],
+          },
+          options: commonOptions,
+        });
+
+        new Chart(document.getElementById("chart-performance"), {
+          type: "bar",
+          data: {
+            labels: [
+              "TechGlobal",
+              "SteelWorks",
+              "LogiTrans",
+              "AlphaChem",
+              "BetaPack",
+            ],
+            datasets: [
+              {
+                label: "Rating (0-5)",
+                data: [4.5, 3.2, 4.8, 4.1, 3.9],
+                backgroundColor: [
+                  "#3b82f6",
+                  "#ef4444",
+                  "#10b981",
+                  "#f59e0b",
+                  "#8b5cf6",
+                ],
+              },
+            ],
+          },
+          options: {
+            ...commonOptions,
+            scales: { y: { beginAtZero: true, max: 5 } },
+          },
+        });
+
+        new Chart(document.getElementById("chart-category"), {
+          type: "doughnut",
+          data: {
+            labels: ["IT", "Raw Materials", "Logistics", "Services", "Office"],
+            datasets: [
+              {
+                data: [30, 45, 10, 10, 5],
+                backgroundColor: [
+                  "#3b82f6",
+                  "#6366f1",
+                  "#8b5cf6",
+                  "#ec4899",
+                  "#f43f5e",
+                ],
+              },
+            ],
+          },
+          options: commonOptions,
+        });
+
+        new Chart(document.getElementById("chart-negotiation"), {
+          type: "pie",
+          data: {
+            labels: ["Target Met", "Above Target", "Failed"],
+            datasets: [
+              {
+                data: [65, 25, 10],
+                backgroundColor: ["#10b981", "#f59e0b", "#ef4444"],
+              },
+            ],
+          },
+          options: commonOptions,
+        });
+
+        new Chart(document.getElementById("chart-delivery"), {
+          type: "line",
+          data: {
+            labels: ["W1", "W2", "W3", "W4"],
+            datasets: [
+              {
+                label: "On-Time %",
+                data: [92, 94, 88, 96],
+                borderColor: "#10b981",
+                tension: 0.3,
+              },
+            ],
+          },
+          options: { ...commonOptions, scales: { y: { min: 80, max: 100 } } },
+        });
+
+        new Chart(document.getElementById("chart-renewals"), {
+          type: "polarArea",
+          data: {
+            labels: ["Q1", "Q2", "Q3", "Q4"],
+            datasets: [
+              {
+                data: [12, 19, 3, 5],
+                backgroundColor: [
+                  "rgba(59, 130, 246, 0.7)",
+                  "rgba(16, 185, 129, 0.7)",
+                  "rgba(245, 158, 11, 0.7)",
+                  "rgba(239, 68, 68, 0.7)",
+                ],
+              },
+            ],
+          },
+          options: commonOptions,
+        });
+      }
+
+      // --- INIT ---
+      document.addEventListener("DOMContentLoaded", () => {
+        initCharts();
+        renderSuppliers();
+        renderUsers();
+        populateSupplierFilterSelect();
+        renderNegotiationList();
+        updateChatHeader();
+        renderMessages();
+      });
+    </script>
+  </body>
+</html>
