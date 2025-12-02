@@ -1598,25 +1598,28 @@
         }
       }
 
+      /* ✅ FIXED: Don't create a negotiation on click.
+         Only open the initial price modal if no history exists. */
       function onSupplierNegotiationClick(supplierId) {
         currentSupplierId = supplierId;
 
-        if (!negotiations[supplierId]) {
-          negotiations[supplierId] = {
-            status: "Active",
-            messages: [],
-            rounds: [],
-          };
-        }
-
         updateChatHeader();
+
         const negotiation = negotiations[supplierId];
 
-        if (!negotiation.messages?.length && !negotiation.rounds?.length) {
+        // If no negotiation yet OR empty -> ask for initial price
+        if (
+          !negotiation ||
+          (!negotiation.messages?.length && !negotiation.rounds?.length)
+        ) {
           openInitialPriceModal(supplierId);
-        } else {
-          renderMessages();
+          renderMessages();        // shows "No negotiation history yet..."
+          renderNegotiationList(); // shows "No Chat"
+          return;
         }
+
+        renderMessages();
+        renderNegotiationList();
       }
 
       // --- 5. INITIAL PRICE MODAL LOGIC ---
@@ -1641,9 +1644,24 @@
           .classList.remove("hidden");
       }
 
+      /* ✅ FIXED: If user cancels, do NOT leave an "Active" empty negotiation behind. */
       function closeInitialPriceModal() {
         document.getElementById("initial-price-modal").classList.add("hidden");
+
+        // If an empty negotiation was created somewhere, remove it
+        if (
+          initialPriceSupplierId &&
+          negotiations[initialPriceSupplierId] &&
+          !negotiations[initialPriceSupplierId].messages?.length &&
+          !negotiations[initialPriceSupplierId].rounds?.length
+        ) {
+          delete negotiations[initialPriceSupplierId];
+        }
+
         initialPriceSupplierId = null;
+
+        renderMessages();
+        renderNegotiationList();
       }
 
       document
