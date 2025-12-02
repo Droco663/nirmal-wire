@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Supplier Management & Negotiation</title>
+    <title>Supplier Management & Negotiation - Redesigned Dashboard</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,12 +37,12 @@
         color: #1f2937;
       }
       .fade-in {
-        animation: fadeIn 0.3s ease-in-out;
+        animation: fadeIn 0.25s ease-in-out;
       }
       @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(10px);
+          transform: translateY(8px);
         }
         to {
           opacity: 1;
@@ -78,6 +78,13 @@
         text-align: right;
       }
 
+      /* Chart safety */
+      canvas {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+      }
+
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
         width: 6px;
@@ -101,7 +108,15 @@
       class="w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm z-10 hidden md:flex"
     >
       <div class="p-6 flex items-center gap-3 border-b border-gray-100">
-        <!-- Intentionally blank header (no logo/name) -->
+        <div
+          class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold"
+        >
+          SA
+        </div>
+        <div>
+          <p class="font-bold text-gray-800 leading-tight">Supplier App</p>
+          <p class="text-xs text-gray-500">Procurement Suite</p>
+        </div>
       </div>
 
       <nav class="flex-1 p-4 space-y-2">
@@ -172,34 +187,41 @@
       <div class="p-4 md:p-8 max-w-7xl mx-auto min-h-full">
         <!-- 1. DASHBOARD SCREEN -->
         <section id="screen-dashboard" class="fade-in space-y-6">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">Analytics Overview</h2>
-            <div class="flex gap-2">
-              <select
-                class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option>Last 30 Days</option>
-                <option>This Quarter</option>
-                <option>This Year</option>
-              </select>
-              <button
-                class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700 transition"
-              >
-                <i class="fas fa-download mr-2"></i>Report
-              </button>
+          <!-- Top bar -->
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">
+                Analytics Overview
+              </h2>
+              <p class="text-sm text-gray-500">
+                Real-time procurement, sales, and supplier metrics.
+              </p>
             </div>
           </div>
 
           <!-- KPI Cards -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <div class="flex justify-between items-start">
                 <div>
-                  <p class="text-sm text-gray-500 mb-1">Total Spend</p>
-                  <h3 class="text-2xl font-bold text-gray-800">$2.4M</h3>
-                  <p class="text-xs text-green-500 mt-1">
-                    <i class="fas fa-arrow-up"></i> 12% vs last month
+                  <p class="text-sm text-gray-500 mb-1">Total Profit</p>
+                  <h3 class="text-2xl font-bold text-gray-800">$482,850</h3>
+                  <p class="text-xs text-green-600 mt-1">
+                    <i class="fas fa-arrow-up"></i> 8.4% vs last month
                   </p>
+                </div>
+                <div class="p-2 bg-green-50 text-green-600 rounded-lg">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Total Revenue</p>
+                  <h3 class="text-2xl font-bold text-gray-800">$1,280,450</h3>
+                  <p class="text-xs text-blue-600 mt-1">+12.1% MoM</p>
                 </div>
                 <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
                   <i class="fas fa-dollar-sign"></i>
@@ -207,88 +229,366 @@
               </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-sm text-gray-500 mb-1">Transactions</p>
+                  <h3 class="text-2xl font-bold text-gray-800">12,106</h3>
+                  <p class="text-xs text-green-600 mt-1">+5.8% WoW</p>
+                </div>
+                <div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                  <i class="fas fa-receipt"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <div class="flex justify-between items-start">
                 <div>
                   <p class="text-sm text-gray-500 mb-1">Active Suppliers</p>
                   <h3 class="text-2xl font-bold text-gray-800">142</h3>
-                  <p class="text-xs text-blue-500 mt-1">4 New this week</p>
-                </div>
-                <div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
-                  <i class="fas fa-truck"></i>
-                </div>
-              </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div class="flex justify-between items-start">
-                <div>
-                  <p class="text-sm text-gray-500 mb-1">Pending Negotations</p>
-                  <h3 class="text-2xl font-bold text-gray-800">28</h3>
-                  <p class="text-xs text-orange-500 mt-1">High Priority: 5</p>
+                  <p class="text-xs text-orange-600 mt-1">4 new this week</p>
                 </div>
                 <div class="p-2 bg-orange-50 text-orange-600 rounded-lg">
-                  <i class="fas fa-comments"></i>
-                </div>
-              </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div class="flex justify-between items-start">
-                <div>
-                  <p class="text-sm text-gray-500 mb-1">Savings Achieved</p>
-                  <h3 class="text-2xl font-bold text-gray-800">$320k</h3>
-                  <p class="text-xs text-green-500 mt-1">15% Margin</p>
-                </div>
-                <div class="p-2 bg-green-50 text-green-600 rounded-lg">
-                  <i class="fas fa-piggy-bank"></i>
+                  <i class="fas fa-truck"></i>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Charts Grid -->
+          <!-- Charts row 1 -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Total Profit Graph + mini report -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-semibold text-gray-800">
+                  Total Profit Trend
+                </h4>
+                <span class="text-xs text-gray-500">Last 6 Months</span>
+              </div>
+
+              <div class="relative h-[260px] w-full">
+                <canvas id="chart-profit"></canvas>
+              </div>
+
+              <div class="grid grid-cols-3 gap-4 mt-4 text-sm">
+                <div class="bg-gray-50 rounded-xl p-3 border">
+                  <p class="text-xs text-gray-500">Total Profit</p>
+                  <p class="font-bold text-gray-800">$482,850</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-3 border">
+                  <p class="text-xs text-gray-500">Total Income</p>
+                  <p class="font-bold text-gray-800">$838,435</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-3 border">
+                  <p class="text-xs text-gray-500">Total Expense</p>
+                  <p class="font-bold text-gray-800">$245,585</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Revenue Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-semibold text-gray-800">
+                  Revenue Section
+                </h4>
+                <span class="text-xs text-gray-500">Breakdown</span>
+              </div>
+
+              <div class="relative h-[260px] w-full">
+                <canvas id="chart-revenue"></canvas>
+              </div>
+
+              <div class="mt-4 text-sm space-y-2">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Subscriptions</span>
+                  <span class="font-semibold">$412,000</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">One-time Orders</span>
+                  <span class="font-semibold">$868,450</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Enterprise Deals</span>
+                  <span class="font-semibold">$275,000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts row 2 -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Transactions -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-sm font-semibold text-gray-800">
+                  Recent Transactions
+                </h4>
+                <button class="text-xs text-blue-600 hover:underline">
+                  View all
+                </button>
+              </div>
+
+              <div class="space-y-3 text-sm">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <i class="fab fa-paypal"></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-800">PayPal Payout</p>
+                      <p class="text-xs text-gray-500">Received • 02 Dec</p>
+                    </div>
+                  </div>
+                  <p class="font-semibold text-green-600">+$24,820</p>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                      <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-800">Credit Card Fee</p>
+                      <p class="text-xs text-gray-500">DigitalOcean • 02 Dec</p>
+                    </div>
+                  </div>
+                  <p class="font-semibold text-red-500">-$1,250</p>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+                      <i class="fab fa-spotify"></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-800">SaaS Renewal</p>
+                      <p class="text-xs text-gray-500">Spotify Business • 01 Dec</p>
+                    </div>
+                  </div>
+                  <p class="font-semibold text-red-500">-$599</p>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+                      <i class="fas fa-wallet"></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-800">Wallet Top-up</p>
+                      <p class="text-xs text-gray-500">MoCo • 30 Nov</p>
+                    </div>
+                  </div>
+                  <p class="font-semibold text-green-600">+$682</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Sales vs Total Revenue -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden">
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <h4 class="text-sm font-semibold text-gray-800">
+                    Total Sales vs Total Revenue
+                  </h4>
+                  <p class="text-xs text-gray-500">Weekly Comparison</p>
+                </div>
+                <div class="text-right text-sm">
+                  <p class="text-gray-500 text-xs">Total Sales</p>
+                  <p class="font-bold text-lg">$1,045,300</p>
+                  <p class="text-gray-500 text-xs mt-2">Total Revenue</p>
+                  <p class="font-bold text-lg">$1,280,450</p>
+                </div>
+              </div>
+
+              <div class="relative h-[260px] w-full">
+                <canvas id="chart-sales-revenue"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts row 3 -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
-              <h4 class="text-sm font-semibold text-gray-700 mb-4">
-                Monthly Procurement Spend
-              </h4>
-              <div class="h-64"><canvas id="chart-spend"></canvas></div>
+            <!-- Logistics -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-semibold text-gray-800">Logistics</h4>
+                <span class="text-xs text-green-600 font-semibold">
+                  +22% efficiency
+                </span>
+              </div>
+
+              <div class="relative h-[220px] w-full">
+                <canvas id="chart-logistics"></canvas>
+              </div>
+
+              <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div class="bg-gray-50 rounded-xl p-3 border">
+                  <p class="text-xs text-gray-500">Avg Delivery Time</p>
+                  <p class="font-bold text-gray-800">3.6 days</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-3 border">
+                  <p class="text-xs text-gray-500">On-time Rate</p>
+                  <p class="font-bold text-gray-800">94.2%</p>
+                </div>
+              </div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
-              <h4 class="text-sm font-semibold text-gray-700 mb-4">
-                Supplier Performance Rating
-              </h4>
-              <div class="h-64"><canvas id="chart-performance"></canvas></div>
+            <!-- Reports / System Bugs -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-semibold text-gray-800">
+                  Reports / System Bugs
+                </h4>
+                <button class="text-xs text-blue-600 hover:underline">
+                  Open backlog
+                </button>
+              </div>
+
+              <div class="relative h-[220px] w-full">
+                <canvas id="chart-bugs"></canvas>
+              </div>
+
+              <div class="mt-3 flex justify-between text-sm">
+                <div>
+                  <p class="text-xs text-gray-500">Open Bugs</p>
+                  <p class="font-bold text-gray-800">268</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Resolved this month</p>
+                  <p class="font-bold text-green-600">+81</p>
+                </div>
+              </div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
-              <h4 class="text-sm font-semibold text-gray-700 mb-4">
-                Spend by Category
-              </h4>
-              <div class="h-64"><canvas id="chart-category"></canvas></div>
+            <!-- New Visitors -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-semibold text-gray-800">
+                  New Visitor Stats
+                </h4>
+                <span class="text-xs text-gray-500">Last 7 days</span>
+              </div>
+
+              <div class="relative h-[220px] w-full">
+                <canvas id="chart-visitors"></canvas>
+              </div>
+
+              <div class="mt-3 flex justify-between text-sm">
+                <div>
+                  <p class="text-xs text-gray-500">New Visitors</p>
+                  <p class="font-bold text-gray-800">12,480</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Growth</p>
+                  <p class="font-bold text-green-600">+9.6%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts row 4 -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Website Statistics -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <h4 class="text-sm font-semibold text-gray-800">
+                    Website Statistics
+                  </h4>
+                  <p class="text-xs text-gray-500">Traffic Sources</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Total Traffic</p>
+                  <p class="font-bold text-gray-800 text-lg">4,590</p>
+                </div>
+              </div>
+
+              <div class="relative h-[240px] w-full">
+                <canvas id="chart-traffic"></canvas>
+              </div>
+
+              <div class="mt-3 text-sm grid grid-cols-2 gap-2">
+                <div class="flex justify-between bg-gray-50 p-2 rounded-lg border">
+                  <span class="text-gray-600">Direct</span><span class="font-semibold">86,471</span>
+                </div>
+                <div class="flex justify-between bg-gray-50 p-2 rounded-lg border">
+                  <span class="text-gray-600">Organic</span><span class="font-semibold">57,484</span>
+                </div>
+                <div class="flex justify-between bg-gray-50 p-2 rounded-lg border">
+                  <span class="text-gray-600">Referral</span><span class="font-semibold">2,534</span>
+                </div>
+                <div class="flex justify-between bg-gray-50 p-2 rounded-lg border">
+                  <span class="text-gray-600">Email</span><span class="font-semibold">977</span>
+                </div>
+              </div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
-              <h4 class="text-sm font-semibold text-gray-700 mb-4">
-                Negotiation Success Rate
-              </h4>
-              <div class="h-64"><canvas id="chart-negotiation"></canvas></div>
-            </div>
+            <!-- Meeting Schedule -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-sm font-semibold text-gray-800">
+                  Meeting Schedule
+                </h4>
+                <button class="text-xs text-blue-600 hover:underline">
+                  Calendar
+                </button>
+              </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
-              <h4 class="text-sm font-semibold text-gray-700 mb-4">
-                On-Time Delivery Stats
-              </h4>
-              <div class="h-64"><canvas id="chart-delivery"></canvas></div>
-            </div>
+              <div class="space-y-3 text-sm">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                      CW
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-800">Call with Woods</p>
+                      <p class="text-xs text-gray-500">11:00–11:30 • Zoom</p>
+                    </div>
+                  </div>
+                  <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 font-semibold">Business</span>
+                </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-80">
-              <h4 class="text-sm font-semibold text-gray-700 mb-4">
-                Contract Renewals (Upcoming)
-              </h4>
-              <div class="h-64"><canvas id="chart-renewals"></canvas></div>
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                      HH
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-800">Call with Hilda</p>
+                      <p class="text-xs text-gray-500">12:30–1:00 • Teams</p>
+                    </div>
+                  </div>
+                  <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 font-semibold">Negotiation</span>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center">
+                      CC
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-800">Conference Call</p>
+                      <p class="text-xs text-gray-500">3:00–4:15 • HQ Room A</p>
+                    </div>
+                  </div>
+                  <span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 font-semibold">Critical</span>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center">
+                      MK
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-800">Meeting with Mark</p>
+                      <p class="text-xs text-gray-500">5:30–6:00 • Cafe</p>
+                    </div>
+                  </div>
+                  <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-semibold">Meetup</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -470,7 +770,6 @@
                     </select>
                   </div>
 
-                  <!-- NEW: View POC button -->
                   <button
                     id="view-poc-btn"
                     onclick="openPocViewModal()"
@@ -606,7 +905,7 @@
             </select>
           </div>
 
-          <!-- NEW: Supplier POC Details (stored, editable, not shown in table) -->
+          <!-- Supplier POC Details -->
           <div class="pt-2 border-t border-gray-200">
             <h4 class="text-sm font-semibold text-gray-700 mb-2">
               Supplier POC Details
@@ -844,7 +1143,7 @@
       </div>
     </div>
 
-    <!-- NEW: POC VIEW MODAL -->
+    <!-- POC VIEW MODAL -->
     <div
       id="poc-view-modal"
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden"
@@ -918,9 +1217,8 @@
 
       // --- 2. CHAT / NEGOTIATION STATE ---
       const ADMIN_ROLE = "admin";
-      let currentRole = ADMIN_ROLE; // fixed as admin
+      let currentRole = ADMIN_ROLE;
 
-      // Suppliers (now includes poc)
       let suppliers = [
         {
           id: 1,
@@ -953,13 +1251,8 @@
         },
       ];
 
-      // Negotiations per supplierId
-      // status: 'Active' | 'Closed'
-      // messages: current round messages
-      // rounds: past finalized rounds
       let negotiations = {};
 
-      // Seed example negotiation for TechGlobal
       negotiations[1] = {
         status: "Active",
         messages: [
@@ -1000,7 +1293,6 @@
       let initialPriceSupplierId = null;
 
       // --- 3. NEGOTIATION RENDERING ---
-
       function getCurrentNegotiation() {
         if (!currentSupplierId) return null;
         return negotiations[currentSupplierId] || null;
@@ -1028,8 +1320,6 @@
 
         if (!negotiation.rounds) negotiation.rounds = [];
         negotiation.rounds.push(round);
-
-        // clear current round
         negotiation.messages = [];
       }
 
@@ -1061,7 +1351,6 @@
           return;
         }
 
-        // Render past finalized rounds
         if (negotiation.rounds?.length) {
           negotiation.rounds.forEach((round, roundIndex) => {
             const roundLabel = document.createElement("div");
@@ -1095,7 +1384,6 @@
           });
         }
 
-        // If no current messages, show prompt to start new
         if (!negotiation.messages?.length) {
           const promptWrap = document.createElement("div");
           promptWrap.className =
@@ -1561,7 +1849,6 @@
           renderSuppliers();
           closeSupplierModal();
 
-          // if editing currently selected supplier, refresh header + POC modal data
           if (currentSupplierId) updateChatHeader();
         });
 
@@ -1717,131 +2004,212 @@
         openSupplierModal("edit", index);
       }
 
-      // --- 9. CHARTS LOGIC (Chart.js) ---
-      function initCharts() {
-        const commonOptions = { responsive: true, maintainAspectRatio: false };
+      // --- 9. DASHBOARD CHARTS ---
+      function initDashboardCharts() {
+        const baseOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: 8 },
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                boxWidth: 12,
+                boxHeight: 12,
+                padding: 12,
+                font: { size: 11 },
+              },
+            },
+            tooltip: { enabled: true },
+          },
+        };
 
-        new Chart(document.getElementById("chart-spend"), {
+        // Profit line
+        new Chart(document.getElementById("chart-profit"), {
           type: "line",
           data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            labels: ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             datasets: [
               {
-                label: "Spend ($)",
-                data: [120000, 190000, 30000, 50000, 200000, 300000],
-                borderColor: "#3b82f6",
-                backgroundColor: "rgba(59, 130, 246, 0.1)",
+                label: "Profit ($)",
+                data: [62000, 74500, 70100, 81200, 90550, 104500],
+                borderColor: "#22c55e",
+                backgroundColor: "rgba(34,197,94,0.12)",
                 fill: true,
-                tension: 0.4,
-              },
-            ],
-          },
-          options: commonOptions,
-        });
-
-        new Chart(document.getElementById("chart-performance"), {
-          type: "bar",
-          data: {
-            labels: [
-              "TechGlobal",
-              "SteelWorks",
-              "LogiTrans",
-              "AlphaChem",
-              "BetaPack",
-            ],
-            datasets: [
-              {
-                label: "Rating (0-5)",
-                data: [4.5, 3.2, 4.8, 4.1, 3.9],
-                backgroundColor: [
-                  "#3b82f6",
-                  "#ef4444",
-                  "#10b981",
-                  "#f59e0b",
-                  "#8b5cf6",
-                ],
+                tension: 0.35,
+                pointRadius: 3,
               },
             ],
           },
           options: {
-            ...commonOptions,
-            scales: { y: { beginAtZero: true, max: 5 } },
+            ...baseOptions,
+            scales: {
+              y: {
+                ticks: {
+                  callback: (v) => "$" + v.toLocaleString(),
+                  font: { size: 11 },
+                },
+              },
+            },
           },
         });
 
-        new Chart(document.getElementById("chart-category"), {
+        // Revenue doughnut
+        new Chart(document.getElementById("chart-revenue"), {
           type: "doughnut",
           data: {
-            labels: ["IT", "Raw Materials", "Logistics", "Services", "Office"],
+            labels: ["Subscriptions", "One-time Orders", "Enterprise Deals"],
             datasets: [
               {
-                data: [30, 45, 10, 10, 5],
-                backgroundColor: [
-                  "#3b82f6",
-                  "#6366f1",
-                  "#8b5cf6",
-                  "#ec4899",
-                  "#f43f5e",
-                ],
+                data: [412000, 868450, 275000],
+                backgroundColor: ["#3b82f6", "#8b5cf6", "#10b981"],
+                borderWidth: 2,
+                borderColor: "#fff",
               },
             ],
           },
-          options: commonOptions,
+          options: {
+            ...baseOptions,
+            cutout: "68%",
+          },
         });
 
-        new Chart(document.getElementById("chart-negotiation"), {
-          type: "pie",
+        // Sales vs Revenue bar
+        new Chart(document.getElementById("chart-sales-revenue"), {
+          type: "bar",
           data: {
-            labels: ["Target Met", "Above Target", "Failed"],
+            labels: ["W1", "W2", "W3", "W4"],
             datasets: [
               {
-                data: [65, 25, 10],
-                backgroundColor: ["#10b981", "#f59e0b", "#ef4444"],
+                label: "Total Sales",
+                data: [245000, 260000, 270000, 270300],
+                backgroundColor: "#60a5fa",
+                borderRadius: 6,
+              },
+              {
+                label: "Total Revenue",
+                data: [295000, 310000, 340000, 335450],
+                backgroundColor: "#34d399",
+                borderRadius: 6,
               },
             ],
           },
-          options: commonOptions,
+          options: {
+            ...baseOptions,
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                ticks: {
+                  callback: (v) => "$" + v.toLocaleString(),
+                  font: { size: 11 },
+                },
+              },
+            },
+          },
         });
 
-        new Chart(document.getElementById("chart-delivery"), {
+        // Logistics on-time + volume
+        new Chart(document.getElementById("chart-logistics"), {
           type: "line",
           data: {
             labels: ["W1", "W2", "W3", "W4"],
             datasets: [
               {
-                label: "On-Time %",
+                label: "On-time %",
                 data: [92, 94, 88, 96],
                 borderColor: "#10b981",
-                tension: 0.3,
+                tension: 0.35,
+                pointRadius: 3,
               },
             ],
           },
-          options: { ...commonOptions, scales: { y: { min: 80, max: 100 } } },
+          options: {
+            ...baseOptions,
+            scales: {
+              y: { min: 80, max: 100 },
+            },
+          },
         });
 
-        new Chart(document.getElementById("chart-renewals"), {
-          type: "polarArea",
+        // Bugs
+        new Chart(document.getElementById("chart-bugs"), {
+          type: "bar",
           data: {
-            labels: ["Q1", "Q2", "Q3", "Q4"],
+            labels: ["UI", "API", "Payments", "Reports", "Auth"],
             datasets: [
               {
-                data: [12, 19, 3, 5],
-                backgroundColor: [
-                  "rgba(59, 130, 246, 0.7)",
-                  "rgba(16, 185, 129, 0.7)",
-                  "rgba(245, 158, 11, 0.7)",
-                  "rgba(239, 68, 68, 0.7)",
-                ],
+                label: "Open Bugs",
+                data: [62, 79, 41, 55, 31],
+                backgroundColor: "#f59e0b",
+                borderRadius: 6,
+              },
+              {
+                label: "Resolved",
+                data: [28, 34, 19, 24, 11],
+                backgroundColor: "#22c55e",
+                borderRadius: 6,
               },
             ],
           },
-          options: commonOptions,
+          options: {
+            ...baseOptions,
+            scales: { y: { beginAtZero: true } },
+          },
+        });
+
+        // Visitors
+        new Chart(document.getElementById("chart-visitors"), {
+          type: "bar",
+          data: {
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            datasets: [
+              {
+                label: "New Visitors",
+                data: [1200, 1680, 1540, 1890, 2100, 1950, 2120],
+                backgroundColor: "#8b5cf6",
+                borderRadius: 6,
+              },
+            ],
+          },
+          options: { ...baseOptions, scales: { y: { beginAtZero: true } } },
+        });
+
+        // Traffic sources
+        new Chart(document.getElementById("chart-traffic"), {
+          type: "line",
+          data: {
+            labels: ["W1", "W2", "W3", "W4"],
+            datasets: [
+              {
+                label: "Direct",
+                data: [21000, 22500, 24000, 18971],
+                borderColor: "#3b82f6",
+                tension: 0.35,
+                pointRadius: 2,
+              },
+              {
+                label: "Organic",
+                data: [13000, 14800, 15200, 14484],
+                borderColor: "#10b981",
+                tension: 0.35,
+                pointRadius: 2,
+              },
+              {
+                label: "Referral",
+                data: [600, 720, 610, 604],
+                borderColor: "#f59e0b",
+                tension: 0.35,
+                pointRadius: 2,
+              },
+            ],
+          },
+          options: { ...baseOptions },
         });
       }
 
       // --- INIT ---
       document.addEventListener("DOMContentLoaded", () => {
-        initCharts();
+        initDashboardCharts();
         renderSuppliers();
         renderUsers();
         populateSupplierFilterSelect();
